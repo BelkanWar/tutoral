@@ -1,8 +1,11 @@
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+from plotly import express
 
-# 建立一個單變量資料集
+# create a dataset with one continuous variables as independent variable 
 x = np.random.randn(100)
 y = x * 0.3 + 5.5 + np.random.randn(100)*0.1
 
@@ -26,11 +29,23 @@ sns.scatterplot(
     x='x', y='y', hue='type')
 plt.show()
 
-# 建立一個有連續變量和類別變量的資料集
+#create a dataset with one continuous variables and one categorical variable as independent variables 
 x = np.random.randn(100)
 cat = np.array(['a'] * 50 + ['b'] * 50)
 cat_dummy_b = (cat=='b').astype(float)
-y = x * 0.3 + x * cat_dummy_b * -1 + 5.5 + cat_dummy_b * -0.5 + np.random.randn(100)*0.1
+y = x * 0.3 + 5.5 + cat_dummy_b * -0.5 + np.random.randn(100)*0.1
 
 sns.scatterplot(data={'x':x, 'y':y}, x='x', y='y', hue=cat)
 plt.show()
+
+
+# create a dataset with twon continuous varables as independent variables
+x1 = np.random.randn(100)
+x2 = np.random.randn(100)
+
+y = x1 * 0.3 + x2 * -0.1 + 1.0 + np.random.randn(100)*0.1
+
+fig = express.scatter_3d({'x1':x1, 'x2':x2, 'y':y}, x='x1', y='x2', z='y')
+fig.show()
+
+model = smf.glm(formula="y~x1+x2", data={'x1':x1, 'x2':x2, 'y':y}).fit()
