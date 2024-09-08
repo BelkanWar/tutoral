@@ -3,22 +3,22 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
+import pandas as pd
+from sklearn.linear_model import LinearRegression
 from plotly import express
 
 # create a dataset with one continuous variables as independent variable 
 x = np.random.randn(100)
-y = x * 0.3 + 5.5 + np.random.randn(100)*0.1
+y = x * 0.000000003 + 5.5 + np.random.randn(100)*0.1
 
 sns.scatterplot(data={'x':x, 'y':y}, x='x', y='y')
 plt.show()
 
-# linear regression by sklearn
-from sklearn.linear_model import LinearRegression
-
+# conduct linear regression by sklearn
 model = LinearRegression()
 model.fit(x.reshape(-1,1), y)
 
-print(f"slope: {model.coef_[0]} | intercept: {model.intercept_[0]}")
+print(f"intercept: {model.intercept_}\nslope    : {model.coef_[0]}")
 
 y_pred = model.predict(x.reshape(-1,1))
 sns.scatterplot(
@@ -29,23 +29,77 @@ sns.scatterplot(
     x='x', y='y', hue='type')
 plt.show()
 
+# conduct linear regression by statsmodels
+model = smf.glm(formula='y~x', data={'x':x, 'y':y}).fit()
+print(model.summary())
+
+# constuct a outlier dataset
+x = np.random.randn(100)
+y = x * 0.000000003 + 5.5 + np.random.randn(100)*0.1
+
+x = x.tolist() + [10]
+y = y.tolist() + [100]
+
+sns.scatterplot(data={'x':x, 'y':y}, x='x', y='y')
+plt.show()
+
+model = smf.glm(formula='y ~ x', data={'x':x, 'y':y}).fit()
+
+sm.graphics.plot_leverage_resid2(model)
+plt.show()
+
+y_pred = model.predict({'x':x, 'y':y})
+sns.scatterplot(
+    data={
+        'x':np.concat((x, x)), 
+        'y':np.concat((y, y_pred)),
+        'type':['raw data']*len(x) + ['prediction']*len(x)},
+    x='x', y='y', hue='type')
+plt.show()
+
 #create a dataset with one continuous variables and one categorical variable as independent variables 
 x = np.random.randn(100)
 cat = np.array(['a'] * 50 + ['b'] * 50)
 cat_dummy_b = (cat=='b').astype(float)
-y = x * 0.3 + 5.5 + cat_dummy_b * -0.5 + np.random.randn(100)*0.1
+y = x * 0.3 + x * cat_dummy_b * -1.0 + 5.5 + cat_dummy_b * -0.5 + np.random.randn(100)*0.1
 
 sns.scatterplot(data={'x':x, 'y':y}, x='x', y='y', hue=cat)
 plt.show()
 
+model = smf.glm(formula='y ~ x + cat + x*cat', data={'x':x, 'cat':cat, 'y':y}).fit()
+print(model.summary())
+
+y_pred = model.predict({'x':x, 'cat':cat, 'y':y})
+sns.scatterplot(
+    data={
+        'x':np.concat((x, x)), 
+        'cat':np.concat((cat, cat)),
+        'y':np.concat((y, y_pred)),
+        'type':['raw data']*x.shape[0] + ['prediction']*x.shape[0]},
+    x='x', y='y', hue='type')
+plt.show()
 
 # create a dataset with twon continuous varables as independent variables
 x1 = np.random.randn(100)
 x2 = np.random.randn(100)
 
-y = x1 * 0.3 + x2 * -0.1 + 1.0 + np.random.randn(100)*0.1
+y = x1 * 0.3 + x2 * -0.1 + 1.0  + x1 * x2 * -0.4 + np.random.randn(100)*0.1
 
 fig = express.scatter_3d({'x1':x1, 'x2':x2, 'y':y}, x='x1', y='x2', z='y')
 fig.show()
 
-model = smf.glm(formula="y~x1+x2", data={'x1':x1, 'x2':x2, 'y':y}).fit()
+model = smf.glm(formula="y~x1+x2+x1*x2", data={'x1':x1, 'x2':x2, 'y':y}).fit()
+
+y_pred = model.predict({'x1':x1, 'x2':x2})
+fig = express.scatter_3d(
+    pd.DataFrame({
+        'x1':np.concat((x1, x1)),
+        'x2': np.concat((x2, x2)),
+        'y':np.concat((y, y_pred)),
+        'type':['raw data']*len(x1) + ['prediction']*len(x2)}),
+    x='x1', y='x2', z='y', color='type')
+fig.show()
+
+sm.graphics.qqplot(model.resid_deviance)
+plt.show()
+
