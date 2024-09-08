@@ -6,7 +6,7 @@ import statsmodels.formula.api as smf
 import pandas as pd
 from sklearn.linear_model import LinearRegression
 from plotly import express
-
+   
 # create a dataset with one continuous variables as independent variable 
 x = np.random.randn(100)
 y = x * 0.000000003 + 5.5 + np.random.randn(100)*0.1
