@@ -67,5 +67,16 @@ cursor.execute(
 
 count = cursor.fetchall()
 
+# grouping
+cursor.execute(
+    """
+    SELECT 
+        species, AVG(sepal_length), SUM(sepal_width) 
+    FROM myDB.iris
+        GROUP BY species
+    """)
+
+data = cursor.fetchall()
+
 # disconnect
 db.close()
