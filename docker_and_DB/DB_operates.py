@@ -42,10 +42,30 @@ for row in range(iris.data.shape[0]):
         """
         INSERT INTO myDB.iris (species, sepal_length, sepal_width, petal_length, petal_width)
         VALUES (%s, %s, %s, %s, %s)
-        """, (species, sepal_len, sepal_width, petal_len, petal_width)
-    )
+        """, (species, sepal_len, sepal_width, petal_len, petal_width))
     db.commit()
 
+# retrieve some data
+cursor.execute(
+    """
+    SELECT 
+        id, species, sepal_length, timestamp
+    FROM myDB.iris
+        WHERE species = %s
+    """, ('setosa'))
+
+data = cursor.fetchall()
+
+# counting data 
+cursor.execute(
+    """
+    SELECT 
+        COUNT(id)
+    FROM myDB.iris
+        WHERE species = %s
+    """, ('versicolor'))
+
+count = cursor.fetchall()
 
 # disconnect
 db.close()
