@@ -10,6 +10,8 @@ matplotlib = "*"
 seaborn = "*"
 plotly = "*"
 statsmodels = "*"
+pymysql = "*"
+cryptography = "*"
 
 [dev-packages]
 
