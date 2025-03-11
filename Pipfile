@@ -12,6 +12,7 @@ plotly = "*"
 statsmodels = "*"
 pymysql = "*"
 cryptography = "*"
+torch = "*"
 
 [dev-packages]
 
